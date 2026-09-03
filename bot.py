@@ -67,6 +67,8 @@ def process_file(file_type, user, caption, message):
 async def get_max_updates(request: Request, background_tasks: BackgroundTasks):
     update = await request.json()
 
+    print("ПОЛУЧЕН ВЕБХУК ОТ MAX:", update)
+
     background_tasks.add_task(process_messages, update)
 
     return {"status": "ok"}
