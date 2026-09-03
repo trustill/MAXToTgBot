@@ -26,11 +26,16 @@ def download_file_from_max(file_id):
 
 def process_messages(update: dict):
     message = update.get("message", {})
-    user = message.get("from", {}).get("name", "Аноним")
-    caption = message.get("caption", "")
 
-    if "text" in message:
-        forward_text = f"🗣 *{user}* (MAX):\n{message['text']}"
+    body = message.get("body", {})
+    sender = message.get("sender", {})
+
+    user = sender.get("name", sender.get("first_name", "Аноним"))
+
+    caption = ""
+
+    if "text" in body:
+        forward_text = f"🗣 *{user}* (MAX):\n{body['text']}"
         bot.send_message(chat_id=config.chat_id, text=forward_text, parse_mode='Markdown')
     elif "photo" in message:
         process_file("photo", user, caption, message)
