@@ -48,9 +48,9 @@ def process_file(file_type, user, caption, file_url):
 
     match file_type:
         case "image":
-            bot.send_photo(chat_id=config.chat_id, photo=file, caption=message_caption, parse_mode="Markdown")
+            bot.send_photo(chat_id=config.chat_id, photo=file, caption=message_caption, parse_mode="Markdown", show_caption_above_media=True)
         case "video":
-            bot.send_video(chat_id=config.chat_id, video=file, caption=message_caption, parse_mode="Markdown")
+            bot.send_video(chat_id=config.chat_id, video=file, caption=message_caption, parse_mode="Markdown", show_caption_above_media=True)
         case "audio" | "voice":
             bot.send_audio(chat_id=config.chat_id, audio=file, caption=message_caption, parse_mode="Markdown")
         case _:
