@@ -68,3 +68,7 @@ async def get_max_updates(request: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_messages, update)
 
     return {"status": "ok"}
+
+@app.get("/")
+async def ping():
+    return {"status": "ok"}
