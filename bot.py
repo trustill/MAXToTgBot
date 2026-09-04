@@ -62,10 +62,15 @@ def process_file(file_type, user, caption, file_url, file_name):
 @app.post("/max-webhook")
 async def get_max_updates(request: Request, background_tasks: BackgroundTasks):
     update = await request.json()
+    message = update.get("message", {})
+    chat_type = message.get("recipient", {}).get("chat_type", "")
 
     print("WEBHOOK WORKED", update, flush=True)
 
-    background_tasks.add_task(process_messages, update)
+    if chat_type == "chat":
+        background_tasks.add_task(process_messages, update)
+    else:
+        print(f"MESSAGE SENDED IN DIALOG: {message.get("body", {}).get("text", "")}")
 
     return {"status": "ok"}
 
