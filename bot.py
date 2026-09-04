@@ -27,20 +27,23 @@ def process_messages(update: dict):
         for attachment in attachments:
             file_type = attachment.get("type")
             payload = attachment.get("payload", {})
+            file_name = attachment.get("filename", "document.file")
+
             file_url = payload.get("url")
 
             if file_url:
-                process_file(file_type, user, caption, file_url)
+                process_file(file_type, user, caption, file_url, file_name)
 
     elif caption:
         forward_text = f"🗣 *{user}* (MAX):\n{caption}"
         bot.send_message(chat_id=config.chat_id, text=forward_text, parse_mode='Markdown')
 
 
-def process_file(file_type, user, caption, file_url):
+def process_file(file_type, user, caption, file_url, file_name):
     response = requests.get(file_url)
 
     file = io.BytesIO(response.content)
+    file.name = file_name
 
     message_caption = f"🗣 *{user}* (MAX):"
     if caption:
