@@ -86,7 +86,7 @@ async def get_max_updates(request: Request, background_tasks: BackgroundTasks):
     if chat_type == "chat":
         background_tasks.add_task(process_messages, update)
     else:
-        print(f"MESSAGE SENDED IN DIALOG: {message.get('body', {}).get('text', '')}")
+        print(f"MESSAGE SENDED IN DIALOG")
 
     return {"status": "ok"}
 
