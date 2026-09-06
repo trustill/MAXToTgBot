@@ -1,6 +1,5 @@
 import telebot
 import config
-import json
 import requests
 import io
 
@@ -19,9 +18,21 @@ def process_messages(update: dict):
     sender = message.get("sender", {})
 
     user = sender.get("name", sender.get("first_name", "Аноним"))
-    caption = body.get("text", "")
 
-    attachments = body.get("attachments", [])
+    link = message.get("link", {})
+    if link.get("type") == "forward":
+        fwd_msg = link.get("message", {})
+        fwd_sender = link.get("sender", {})
+        fwd_user = fwd_sender.get("name", fwd_sender.get("first_name", "Аноним"))
+
+        attachments = fwd_msg.get("attachments", [])
+        caption = fwd_msg.get("text", "")
+
+        header = f"🗣 *{user}* переслал(а) от {fwd_user} (MAX):"
+    else:
+        attachments = body.get("attachments", [])
+        caption = body.get("text", "")
+        header = f"🗣 *{user}* (MAX):"
 
     if attachments:
         for attachment in attachments:
@@ -32,20 +43,25 @@ def process_messages(update: dict):
             file_url = payload.get("url")
 
             if file_url:
-                process_file(file_type, user, caption, file_url, file_name)
+                process_file(file_type, header, caption, file_url, file_name)
+                caption = ""
+                header = ""
 
     elif caption:
-        forward_text = f"🗣 *{user}* (MAX):\n{caption}"
+        forward_text = f"{header}\n{caption}"
         bot.send_message(chat_id=config.chat_id, text=forward_text, parse_mode='Markdown')
 
 
-def process_file(file_type, user, caption, file_url, file_name):
+def process_file(file_type, header, caption, file_url, file_name):
     response = requests.get(file_url)
+
+    if response.status_code != 200:
+        print(f"DOWNLOAD ERROR: {response.status_code}", flush=True)
 
     file = io.BytesIO(response.content)
     file.name = file_name
 
-    message_caption = f"🗣 *{user}* (MAX):"
+    message_caption = f"{header}"
     if caption:
         message_caption += f"\n{caption}"
 
@@ -70,7 +86,7 @@ async def get_max_updates(request: Request, background_tasks: BackgroundTasks):
     if chat_type == "chat":
         background_tasks.add_task(process_messages, update)
     else:
-        print(f"MESSAGE SENDED IN DIALOG: {message.get("body", {}).get("text", "")}")
+        print(f"MESSAGE SENDED IN DIALOG: {message.get('body', {}).get('text', '')}")
 
     return {"status": "ok"}
 
